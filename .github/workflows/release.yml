@@ -44,6 +44,10 @@ jobs:
       run: |
         docker run --rm --env LC_ALL=C.UTF-8 -v "${PWD}":/code libass/jso:latest
 
+    - name: Fix Build Output Permissions
+      run: |
+        sudo chown -R "$(id -u):$(id -g)" dist
+
     - name: Setup Node.js
       uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
       with:
