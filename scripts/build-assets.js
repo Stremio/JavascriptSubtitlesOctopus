@@ -51,7 +51,6 @@ if (missingAssets.length > 0) {
 const wasmBinary = readBase64Asset(assetPaths.wasmBinary);
 const assets = {
     workerSource: embedWasmBinary(readTextAsset(assetPaths.workerSource), wasmBinary),
-    wasmBinary: wasmBinary,
     legacyWorkerSource: readTextAsset(assetPaths.legacyWorkerSource),
     defaultFont: readBase64Asset(assetPaths.defaultFont)
 };
