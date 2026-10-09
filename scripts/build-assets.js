@@ -19,17 +19,20 @@ function readBase64Asset(fileName) {
     return fs.readFileSync(path.join(distDir, fileName)).toString('base64');
 }
 
-function embedWasmBinary(workerSource, wasmBinary) {
+function addWasmLoader(workerSource) {
     const prelude = [
         'var Module = typeof Module !== "undefined" ? Module : {};',
-        'Module.wasmBinary = (function (base64) {',
-        '    var binary = atob(base64);',
-        '    var bytes = new Uint8Array(binary.length);',
-        '    for (var i = 0; i < binary.length; i++) {',
-        '        bytes[i] = binary.charCodeAt(i);',
-        '    }',
-        '    return bytes;',
-        '}(' + JSON.stringify(wasmBinary) + '));',
+        'Module.instantiateWasm = function (imports, receiveInstance) {',
+        '    self.addEventListener("message", function onInit(event) {',
+        '        var data = event.data;',
+        '        if (!data || data.target !== "worker-init") return;',
+        '        self.removeEventListener("message", onInit);',
+        '        WebAssembly.instantiate(data.wasmModule || data.wasmBinary, imports).then(function (result) {',
+        '            receiveInstance(result instanceof WebAssembly.Instance ? result : result.instance);',
+        '        }, abort);',
+        '    });',
+        '    return {};',
+        '};',
         ''
     ].join('\n');
 
@@ -48,9 +51,9 @@ if (missingAssets.length > 0) {
     );
 }
 
-const wasmBinary = readBase64Asset(assetPaths.wasmBinary);
 const assets = {
-    workerSource: embedWasmBinary(readTextAsset(assetPaths.workerSource), wasmBinary),
+    workerSource: addWasmLoader(readTextAsset(assetPaths.workerSource)),
+    wasmBinary: readBase64Asset(assetPaths.wasmBinary),
     legacyWorkerSource: readTextAsset(assetPaths.legacyWorkerSource),
     defaultFont: readBase64Asset(assetPaths.defaultFont)
 };

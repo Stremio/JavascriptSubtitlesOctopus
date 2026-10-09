@@ -38,6 +38,8 @@ var SubtitlesOctopus = function (options) {
     self.fallbackFont = options.fallbackFont || 'default.woff2'; // URL to override fallback font, for example, with a CJK one. Default fallback font is Liberation Sans (Optional)
     self.lazyFileLoading = options.lazyFileLoading || false; // Load fonts in a lazy way. Requires Access-Control-Expose-Headers for Accept-Ranges, Content-Length, and Content-Encoding. If Content-Encoding is compressed, file will be fully fetched instead of just a HEAD request.
     self.onReadyEvent = options.onReady; // Function called when SubtitlesOctopus is ready (optional)
+    self.wasmModule = options.wasmModule || null;
+    self.wasmBinary = options.wasmBinary || null;
     if (supportsWebAssembly) {
         self.workerUrl = options.workerUrl || 'subtitles-octopus-worker.js'; // Link to WebAssembly worker
     } else {
@@ -159,6 +161,8 @@ var SubtitlesOctopus = function (options) {
             fonts: self.fonts,
             availableFonts: self.availableFonts,
             fallbackFont: self.fallbackFont,
+            wasmModule: self.wasmModule,
+            wasmBinary: self.wasmBinary,
             lazyFileLoading: self.lazyFileLoading,
             debug: self.debug,
             targetFps: self.targetFps,
